@@ -21,8 +21,8 @@ const (
 	// AssignDay ra cùng 1 kết quả dù chạy hàng nghìn lần (tốn compute vô ích).
 	// Dùng biên độ = max(rclMinMargin, tỉ lệ % của bestVal) để đảm bảo RCL luôn có
 	// ít nhất vài ứng viên gần nhau, ngay cả khi giá trị tuyệt đối nhỏ.
-	rclMinMargin = 2.0
-	rclAlpha     = 0.3 // tỉ lệ % dùng khi |bestVal| đủ lớn (bestVal - 0.3*|bestVal|)
+	rclMinMargin = 0.08 // biên độ tối thiểu (phù hợp khi bestVal ~ 1.0)
+	rclAlpha     = 0.15 // tỉ lệ % dùng khi |bestVal| lớn (e.g. khi có newBrandBonus)
 )
 
 // getStepCostFactor trả về hệ số phạt bước đi thích ứng từ MapProfile.
@@ -306,7 +306,9 @@ func greedyCoverage(
 	prof *MapProfile,
 ) []int {
 	agentPos := gs.AgentPos[agentIdx]
-	collected := copyBrands(collectedBrands)
+	matchBrands := copyBrands(collectedBrands)
+	tBrands := copyBrands(todayBrands)
+	visitedSpots := make(map[int]bool, len(cands))
 	var route []int
 	remSteps := budget
 	remFuel := fuelRemain
@@ -322,7 +324,7 @@ func greedyCoverage(
 		best := -1
 		bestV := -1.0
 		for i, c := range cands {
-			if collected[c.SpotIdx] {
+			if visitedSpots[c.SpotIdx] {
 				continue
 			}
 			p, ok := dc.Patrol.Get(curPos, c.Pos)
@@ -344,14 +346,12 @@ func greedyCoverage(
 				}
 			}
 			v := effectiveValue - float64(p.Steps)*prof.StepFactor
-			isNewInMatch := !collected[c.SpotIdx] && !collectedBrands[c.Brand]
-			isNewToday := !todayBrands[c.Brand]
-			if !collected[c.SpotIdx] {
-				if isNewInMatch {
-					v += prof.NewBrandBonus
-				} else if isNewToday {
-					v += 0.5
-				}
+			isNewInMatch := !matchBrands[c.Brand]
+			isNewToday := !tBrands[c.Brand]
+			if isNewInMatch {
+				v += prof.NewBrandBonus
+			} else if isNewToday {
+				v += 0.5
 			}
 			if v > bestV {
 				bestV = v
@@ -366,7 +366,9 @@ func greedyCoverage(
 		remSteps -= p.Steps
 		remFuel -= p.Fuel
 		curPos = c.Pos
-		collected[c.SpotIdx] = true
+		visitedSpots[c.SpotIdx] = true
+		matchBrands[c.Brand] = true
+		tBrands[c.Brand] = true
 		route = append(route, best)
 	}
 	return route
@@ -910,7 +912,6 @@ func AssignDay(
 		// Chỉ cần làm mới cache cho agent vừa thay đổi vị trí
 		invalidatePathCache(bestAgent)
 	}
-
 	// Phân công thực tế: gọi dpExact / greedy để tối ưu hóa thứ tự route cho các spot đã gán
 	localCollectedBrands := make(map[int]bool)
 	for k, v := range collectedBrands {
@@ -981,10 +982,10 @@ func AssignDay(
 		}
 		agentCtx, agentCancel := context.WithTimeout(ctx, agentTimeout)
 
-		if len(cands) <= prof.DpThreshold {
+		if len(cands) <= 6 && len(cands) <= prof.DpThreshold {
 			routeIdxs, _ = dfsExact(agentCtx, i, budget_i, plannedFuel, cands, localCollectedBrands, gs, dc, todayBrands, prof)
 		} else {
-			// Fallback greedy nếu quá nhiều candidates
+			// greedyCoverage + twoOpt cực nhanh và tối ưu thứ tự ghé thăm
 			routeIdxs = greedyCoverage(agentCtx, i, budget_i, plannedFuel, cands, localCollectedBrands, gs, dc, todayBrands, prof)
 			routeIdxs = twoOpt(agentCtx, routeIdxs, cands, gs.AgentPos[i], dc, gs, todayBrands)
 		}
@@ -1580,38 +1581,31 @@ func AssignDay(
 				continue
 			}
 
-			if remBudget > 0 {
+			// Nếu Patrol đã có lộ trình cho các bãi tiếp theo sau điểm hẹn meetIdx,
+			// GIỮ NGUYÊN lộ trình đó để không phá vỡ các bãi đã được phân công tối ưu từ Phase 1 & 2!
+			// Chỉ mở rộng thêm khi xe đã đi hết lộ trình được gán (meetIdx >= len(patPlan.Route)-1)
+			// và vẫn còn dư ngân sách bước đi.
+			if meetIdx >= 0 && meetIdx < len(patPlan.Route)-1 {
+				// Lộ trình tiếp theo đã có sẵn, giữ nguyên để hoàn thành các bãi được gán!
+			} else if remBudget > 0 {
 				depletedBeforeMeet := make(map[int]bool)
 				for sp := range depletedSpots {
 					depletedBeforeMeet[sp] = true
 				}
 				if meetIdx >= 0 {
-					visitedBefore := make(map[int]bool)
 					for _, pos := range patPlan.Route[:meetIdx+1] {
 						si := gs.SpotIndexAt(pos)
 						if si >= 0 {
-							visitedBefore[si] = true
-						}
-					}
-					if st, ok := patrolStates[patIdx]; ok {
-						for _, idx := range st.routeIdxs {
-							if idx >= 0 && idx < len(st.cands) {
-								spIdx := st.cands[idx].SpotIdx
-								if !visitedBefore[spIdx] {
-									delete(depletedBeforeMeet, spIdx)
-								}
-							}
+							depletedBeforeMeet[si] = true
 						}
 					}
 				}
 
 				cands2 := buildCandidates(patIdx, remBudget, fullFuel, localCollectedBrands, depletedBeforeMeet, gs, dc, prof)
 				var routeIdxs2 []int
-				agentCtx, agentCancel := context.WithTimeout(ctx, assignTimeout)
-				if len(cands2) <= prof.DpThreshold {
-					routeIdxs2, _ = dfsExact(agentCtx, patIdx, remBudget, fullFuel, cands2, localCollectedBrands, gs, dc, todayBrands, prof)
-				} else {
-					routeIdxs2 = greedyCoverage(agentCtx, patIdx, remBudget, fullFuel, cands2, localCollectedBrands, gs, dc, todayBrands, prof)
+				agentCtx, agentCancel := context.WithTimeout(ctx, 10*time.Millisecond)
+				routeIdxs2 = greedyCoverage(agentCtx, patIdx, remBudget, fullFuel, cands2, localCollectedBrands, gs, dc, todayBrands, prof)
+				if len(routeIdxs2) > 1 {
 					routeIdxs2 = twoOpt(agentCtx, routeIdxs2, cands2, rv2.MeetPos, dc, gs, todayBrands)
 				}
 				agentCancel()

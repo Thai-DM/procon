@@ -82,15 +82,15 @@ func GetMapProfile(gs *GameState) *MapProfile {
 			DpThreshold:            17,
 			StepFactor:             0.05,
 			NewBrandBonus:          15.0,
-			LowFuelRefuelThreshold: 65,
+			LowFuelRefuelThreshold: 75,
 			MaxGRASPIterations:     10000,
 			MaxNoImprove:           1500,
 		}
 	} else if maxDim <= 24 {
 		// P4: Map 24x24
-		threshold := 75
+		threshold := 85
 		if gs.DayStepsForDay(gs.CurrentDay) >= 80 {
-			threshold = 100 // Khi budget lớn, xe tiêu tốn 50-70 fuel/ngày -> cần tiếp xăng sớm hơn
+			threshold = 120 // Khi budget lớn, xe tiêu tốn 50-70 fuel/ngày -> tiếp xăng chủ động từ sớm
 		}
 		return &MapProfile{
 			Name:                   "P4: X-Large (24x24)",
@@ -104,9 +104,9 @@ func GetMapProfile(gs *GameState) *MapProfile {
 		}
 	} else {
 		// P5: Map 32x32+
-		threshold := 80
+		threshold := 90
 		if gs.DayStepsForDay(gs.CurrentDay) >= 80 {
-			threshold = 110
+			threshold = 130
 		}
 		return &MapProfile{
 			Name:                   "P5: Huge (32x32+)",

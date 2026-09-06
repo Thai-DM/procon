@@ -192,8 +192,8 @@ func assignKinds(setup *Setup) []int {
 	// - Trên map nhỏ (<=8, <=12), khoảng cách giữa các bãi ngắn, bước thực tế rất ít
 	dailyFuelPerPatrol := float64(maxBudget) * 0.8
 	if maxDim <= 8 {
-		if dailyFuelPerPatrol > 10.0 {
-			dailyFuelPerPatrol = 10.0
+		if dailyFuelPerPatrol > 13.0 {
+			dailyFuelPerPatrol = 13.0
 		}
 	} else if maxDim <= 12 {
 		if dailyFuelPerPatrol > 16.0 {

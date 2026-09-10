@@ -122,6 +122,14 @@ func RunDayWithTransport(
 		bestEffectiveStocks = calcEffectiveStocks(bestStocks, bestActions)
 		bestSteps = CountBudgetUsedAll(bestActions, gs)
 		bestEndDist = calcEndDistToCentroid(bestActions, gs)
+
+		// NỘP NGAY BASELINE AN TOÀN (Anytime Submission trong 20ms đầu ngày)
+		// Đảm bảo bot luôn có điểm và không bao giờ bị timeout/rớt mạng dù thời gian tìm kiếm kéo dài
+		initSafeActions := SanitizeActionsFuelSafe(bestActions, budget, gs)
+		if _, err := tr.PostActions(ctx, initSafeActions); err == nil {
+			log.Printf("[DAY %d] 🚀 Đã nộp sớm baseline an toàn (stocks=%d, types=%d) lúc %dms",
+				day, bestStocks, bestNewTodayTypes, time.Since(startTime).Milliseconds())
+		}
 	}
 
 	noImproveCount := 0

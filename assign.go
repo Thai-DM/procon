@@ -763,9 +763,12 @@ func AssignDay(
 	}
 	spotAssignedCount := make(map[int]int)
 	maxCapPerSpot := 1
-	if len(gs.Spots) < 8 {
-		maxCapPerSpot = 3
-	} else if budget >= 80 && len(patrolIdxs) >= 4 {
+	if len(gs.Spots) <= 8 {
+		maxCapPerSpot = 2
+		if len(gs.Spots) < 6 {
+			maxCapPerSpot = 3
+		}
+	} else if budget >= 60 && len(patrolIdxs) >= 4 {
 		maxCapPerSpot = 2
 	}
 	isSpotFullyAssigned := func(si int) bool {

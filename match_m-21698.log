@@ -1,0 +1,120 @@
+2026/09/09 22:56:58 [INIT] Transport: WebSocket (server-push, low-latency)
+2026/09/09 22:56:58 [WS] Connecting to wss://procon.ptit.edu.vn/ws/v1/matches/m-21698?token=bot-1857604b6fa72b6f0c6f1965
+2026/09/09 22:56:58 [WS] Connected!
+2026/09/09 22:56:58 [INIT] Fetching setup...
+2026/09/09 22:56:58 [INIT] Map 32x32 | agents=8 | spots=12 (maxStocks/day=78) | days=10 | fuelLimit=200
+2026/09/09 22:56:58 [INIT] Assigning kinds: [0 0 0 0 0 0 1 1]
+2026/09/09 22:56:58 [INIT] Waiting for match to start...
+2026/09/09 22:56:58 [INIT] Match started!
+2026/09/09 22:56:58 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":0,"valid":true,"reason":"","submission_id":"team-A-assign-1","response_ms":0}
+2026/09/09 22:56:58 [DAY 0] Agent positions: [523 840 361 7 194 562 507 426] | fuels: [200 200 200 200 200 200 0 0]
+2026/09/09 22:56:58 [DAY 0] DEBUG positions: [523 840 361 7 194 562 507 426] | fuels: [200 200 200 200 200 200 0 0]
+2026/09/09 22:56:58 [DAY 0] budget=100 steps | 63 road statuses
+2026/09/09 22:56:58 [DAY 0] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:56:58 [DAY 0] Cache built (20 sources).
+2026/09/09 22:56:59 [DAY 0] Search completed in 519 iterations. Best: matchTypes=6, todayTypes=6, stocks=38/78, steps=604
+2026/09/09 22:56:59 [DAY 0] final plan submitted OK (700ms taken).
+2026/09/09 22:56:59 [DAY 0] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:56:59 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":1,"valid":true,"reason":"","submission_id":"team-A-d1-2","response_ms":708}
+2026/09/09 22:57:03 [DAY 1] DEBUG positions: [719 223 595 869 940 827 764 719] | fuels: [200 182 155 183 179 198 0 0]
+2026/09/09 22:57:03 [DAY 1] budget=100 steps | 63 road statuses
+2026/09/09 22:57:03 [DAY 1] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:03 [DAY 1] Cache built (20 sources).
+2026/09/09 22:57:03 [DAY 1] iter=21 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=580 endDist=1
+2026/09/09 22:57:04 [DAY 1] iter=337 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=574 endDist=0
+2026/09/09 22:57:04 [DAY 1] iter=352 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=621 endDist=0
+2026/09/09 22:57:04 [DAY 1] Search completed in 513 iterations. Best: matchTypes=0, todayTypes=6, stocks=40/78, steps=621
+2026/09/09 22:57:04 [DAY 1] final plan submitted OK (700ms taken).
+2026/09/09 22:57:04 [DAY 1] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:04 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":2,"valid":true,"reason":"","submission_id":"team-A-d2-3","response_ms":721}
+2026/09/09 22:57:08 [DAY 2] DEBUG positions: [827 869 4 198 362 719 202 264] | fuels: [145 129 190 196 197 150 0 0]
+2026/09/09 22:57:08 [DAY 2] budget=100 steps | 63 road statuses
+2026/09/09 22:57:08 [DAY 2] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:08 [DAY 2] Cache built (20 sources).
+2026/09/09 22:57:08 [DAY 2] iter=133 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=582 endDist=0
+2026/09/09 22:57:09 [DAY 2] iter=351 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=559 endDist=0
+2026/09/09 22:57:09 [DAY 2] Search completed in 488 iterations. Best: matchTypes=0, todayTypes=6, stocks=40/78, steps=559
+2026/09/09 22:57:09 [DAY 2] final plan submitted OK (701ms taken).
+2026/09/09 22:57:09 [DAY 2] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:09 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":3,"valid":true,"reason":"","submission_id":"team-A-d3-4","response_ms":737}
+2026/09/09 22:57:13 [DAY 3] DEBUG positions: [719 4 869 827 595 511 275 4] | fuels: [181 200 168 167 189 178 0 0]
+2026/09/09 22:57:13 [DAY 3] budget=100 steps | 63 road statuses
+2026/09/09 22:57:13 [DAY 3] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:13 [DAY 3] Cache built (20 sources).
+2026/09/09 22:57:13 [DAY 3] iter=3 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=541 endDist=2
+2026/09/09 22:57:13 [DAY 3] iter=12 NEW BEST: matchTypes=0 todayTypes=6 stocks=41 (eff=41) steps=568 endDist=0
+2026/09/09 22:57:13 [DAY 3] iter=139 NEW BEST: matchTypes=0 todayTypes=6 stocks=42 (eff=42) steps=612 endDist=0
+2026/09/09 22:57:14 [DAY 3] Search completed in 497 iterations. Best: matchTypes=0, todayTypes=6, stocks=42/78, steps=612
+2026/09/09 22:57:14 [DAY 3] final plan submitted OK (701ms taken).
+2026/09/09 22:57:14 [DAY 3] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:14 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":4,"valid":true,"reason":"","submission_id":"team-A-d4-5","response_ms":746}
+2026/09/09 22:57:18 [DAY 4] DEBUG positions: [827 869 511 362 212 4 274 668] | fuels: [194 140 177 175 132 131 0 0]
+2026/09/09 22:57:18 [DAY 4] budget=100 steps | 63 road statuses
+2026/09/09 22:57:18 [DAY 4] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:18 [DAY 4] Cache built (20 sources).
+2026/09/09 22:57:18 [DAY 4] iter=35 NEW BEST: matchTypes=0 todayTypes=6 stocks=42 (eff=40) steps=600 endDist=151
+2026/09/09 22:57:19 [DAY 4] iter=283 NEW BEST: matchTypes=0 todayTypes=6 stocks=41 (eff=41) steps=586 endDist=0
+2026/09/09 22:57:19 [DAY 4] Search completed in 479 iterations. Best: matchTypes=0, todayTypes=6, stocks=41/78, steps=586
+2026/09/09 22:57:19 [DAY 4] final plan submitted OK (701ms taken).
+2026/09/09 22:57:19 [DAY 4] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:19 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":5,"valid":true,"reason":"","submission_id":"team-A-d5-6","response_ms":714}
+2026/09/09 22:57:23 [DAY 5] DEBUG positions: [198 4 940 719 362 511 431 624] | fuels: [143 167 124 116 73 163 0 0]
+2026/09/09 22:57:23 [DAY 5] budget=100 steps | 63 road statuses
+2026/09/09 22:57:23 [DAY 5] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:23 [DAY 5] Cache built (20 sources).
+2026/09/09 22:57:23 [DAY 5] iter=14 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=591 endDist=0
+2026/09/09 22:57:24 [DAY 5] Search completed in 460 iterations. Best: matchTypes=0, todayTypes=6, stocks=39/78, steps=591
+2026/09/09 22:57:24 [DAY 5] final plan submitted OK (701ms taken).
+2026/09/09 22:57:24 [DAY 5] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:24 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":6,"valid":true,"reason":"","submission_id":"team-A-d6-7","response_ms":728}
+2026/09/09 22:57:28 [DAY 6] DEBUG positions: [869 940 198 827 719 362 719 827] | fuels: [183 121 176 200 200 188 0 0]
+2026/09/09 22:57:28 [DAY 6] budget=100 steps | 63 road statuses
+2026/09/09 22:57:28 [DAY 6] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:28 [DAY 6] Cache built (20 sources).
+2026/09/09 22:57:28 [DAY 6] iter=8 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=600 endDist=0
+2026/09/09 22:57:28 [DAY 6] iter=213 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=591 endDist=0
+2026/09/09 22:57:29 [DAY 6] iter=392 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=601 endDist=1
+2026/09/09 22:57:29 [DAY 6] iter=450 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=584 endDist=0
+2026/09/09 22:57:29 [DAY 6] Search completed in 450 iterations. Best: matchTypes=0, todayTypes=6, stocks=40/78, steps=584
+2026/09/09 22:57:29 [DAY 6] final plan submitted OK (700ms taken).
+2026/09/09 22:57:29 [DAY 6] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:29 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":7,"valid":true,"reason":"","submission_id":"team-A-d7-8","response_ms":742}
+2026/09/09 22:57:33 [DAY 7] DEBUG positions: [198 362 223 719 827 869 362 605] | fuels: [169 200 188 154 192 134 0 0]
+2026/09/09 22:57:33 [DAY 7] budget=100 steps | 63 road statuses
+2026/09/09 22:57:33 [DAY 7] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:33 [DAY 7] Cache built (20 sources).
+2026/09/09 22:57:33 [DAY 7] iter=1 NEW BEST: matchTypes=0 todayTypes=6 stocks=37 (eff=37) steps=555 endDist=0
+2026/09/09 22:57:33 [DAY 7] iter=6 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=566 endDist=0
+2026/09/09 22:57:34 [DAY 7] iter=344 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=604 endDist=1
+2026/09/09 22:57:34 [DAY 7] iter=504 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=545 endDist=0
+2026/09/09 22:57:34 [DAY 7] Search completed in 507 iterations. Best: matchTypes=0, todayTypes=6, stocks=40/78, steps=545
+2026/09/09 22:57:34 [DAY 7] final plan submitted OK (702ms taken).
+2026/09/09 22:57:34 [DAY 7] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:34 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":8,"valid":true,"reason":"","submission_id":"team-A-d8-9","response_ms":710}
+2026/09/09 22:57:38 [DAY 8] DEBUG positions: [511 719 362 827 198 4 199 638] | fuels: [196 145 150 192 199 192 0 0]
+2026/09/09 22:57:38 [DAY 8] budget=100 steps | 63 road statuses
+2026/09/09 22:57:38 [DAY 8] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:38 [DAY 8] Cache built (20 sources).
+2026/09/09 22:57:38 [DAY 8] iter=14 NEW BEST: matchTypes=0 todayTypes=6 stocks=38 (eff=38) steps=552 endDist=0
+2026/09/09 22:57:38 [DAY 8] iter=42 NEW BEST: matchTypes=0 todayTypes=6 stocks=39 (eff=39) steps=617 endDist=0
+2026/09/09 22:57:38 [DAY 8] iter=63 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=612 endDist=0
+2026/09/09 22:57:39 [DAY 8] iter=262 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=567 endDist=0
+2026/09/09 22:57:39 [DAY 8] Search completed in 496 iterations. Best: matchTypes=0, todayTypes=6, stocks=40/78, steps=567
+2026/09/09 22:57:39 [DAY 8] final plan submitted OK (701ms taken).
+2026/09/09 22:57:39 [DAY 8] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:39 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":9,"valid":true,"reason":"","submission_id":"team-A-d9-10","response_ms":727}
+2026/09/09 22:57:43 [DAY 9] DEBUG positions: [4 198 940 719 827 869 198 594] | fuels: [193 200 167 192 148 175 0 0]
+2026/09/09 22:57:43 [DAY 9] budget=100 steps | 63 road statuses
+2026/09/09 22:57:43 [DAY 9] [P5: Huge (32x32+)] Dynamic timeout=700ms (budget=100 steps)...
+2026/09/09 22:57:43 [DAY 9] Cache built (20 sources).
+2026/09/09 22:57:43 [DAY 9] iter=10 NEW BEST: matchTypes=0 todayTypes=6 stocks=38 (eff=38) steps=546 endDist=0
+2026/09/09 22:57:43 [DAY 9] iter=43 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=635 endDist=2
+2026/09/09 22:57:44 [DAY 9] iter=436 NEW BEST: matchTypes=0 todayTypes=6 stocks=40 (eff=40) steps=587 endDist=0
+2026/09/09 22:57:44 [DAY 9] Search completed in 502 iterations. Best: matchTypes=0, todayTypes=6, stocks=40/78, steps=587
+2026/09/09 22:57:44 [DAY 9] final plan submitted OK (700ms taken).
+2026/09/09 22:57:44 [DAY 9] DEBUG brands all-time=6/12 | dayNewTypes(all-time-basis)=[6]
+2026/09/09 22:57:44 [INFO] Match has reached the final day. Waiting for results...
+2026/09/09 22:57:44 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-21698","day":10,"valid":true,"reason":"","submission_id":"team-A-d10-11","response_ms":751}
+
+[RESULT] Match finished successfully!
+{"protocol_version":"v0.1-draft","type":"match_result","match_id":"m-21698","standings":[{"rank":1,"team_id":"team-D","udon_types":6,"daily_types_sum":60,"udon_total":413,"response_ms_total":9632},{"rank":2,"team_id":"team-A","udon_types":6,"daily_types_sum":60,"udon_total":400,"response_ms_total":7284},{"rank":3,"team_id":"team-C","udon_types":6,"daily_types_sum":60,"udon_total":332,"response_ms_total":9100},{"rank":4,"team_id":"team-B","udon_types":6,"daily_types_sum":60,"udon_total":331,"response_ms_total":8177}]}

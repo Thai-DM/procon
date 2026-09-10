@@ -8,6 +8,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -26,6 +27,7 @@ func main() {
 	urlFlag := flag.String("url", "", "Base URL server")
 	matchFlag := flag.String("match", "", "Match ID")
 	tokenFlag := flag.String("token", "", "API Token")
+	logFlag := flag.String("log", "", "Path to match log file (default: match_<matchID>.log)")
 	flag.Parse()
 
 	var base, matchID, token string
@@ -43,6 +45,30 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  %s -transport ws -url <URL> -match <MATCH> -token <TOKEN>\n", os.Args[0])
 		os.Exit(1)
 	}
+
+	// --- Thiết lập ghi log đồng thời ra console và file text ---
+	logFileName := fmt.Sprintf("match_%s.log", matchID)
+	if *logFlag != "" {
+		logFileName = *logFlag
+	}
+	var logFiles []*os.File
+	var logWriters []io.Writer = []io.Writer{os.Stderr}
+
+	if f, err := os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644); err == nil {
+		defer f.Close()
+		logFiles = append(logFiles, f)
+		logWriters = append(logWriters, f)
+	} else {
+		log.Printf("[WARN] Không thể tạo file log %s: %v", logFileName, err)
+	}
+
+	if f2, err := os.OpenFile("match.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644); err == nil {
+		defer f2.Close()
+		logFiles = append(logFiles, f2)
+		logWriters = append(logWriters, f2)
+	}
+	log.SetOutput(io.MultiWriter(logWriters...))
+	log.Printf("[INIT] Logging match output to console and file: %s (and match.log)", logFileName)
 
 	// Graceful shutdown khi nhận SIGINT / SIGTERM
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -163,8 +189,13 @@ func main() {
 
 	// 7. Lấy kết quả cuối trận
 	if res, rerr := tr.GetResult(ctx); rerr == nil {
-		fmt.Println("\n[RESULT] Match finished successfully!")
-		fmt.Println(string(res))
+		resultMsg := fmt.Sprintf("\n[RESULT] Match finished successfully!\n%s\n", string(res))
+		fmt.Print(resultMsg)
+		for _, f := range logFiles {
+			if f != nil {
+				f.WriteString(resultMsg)
+			}
+		}
 	} else {
 		log.Printf("[WARN] GetResult: %v", rerr)
 	}

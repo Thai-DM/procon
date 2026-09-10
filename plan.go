@@ -482,7 +482,7 @@ func SanitizeActionsFuelSafe(actions [][]int, budget int, gs *GameState) [][]int
 	for i := 0; i < n; i++ {
 		pos[i] = gs.AgentPos[i]
 		fuel[i] = gs.FuelOf(i)
-		isRefueler[i] = !gs.IsPatrol(i)
+		isRefueler[i] = !gs.IsPatrol(i) && gs.AgentFuel[i] == 0
 		nextPos[i] = pos[i]
 		if i < len(actions) {
 			sanitized[i] = make([]int, 0, len(actions[i]))

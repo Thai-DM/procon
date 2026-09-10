@@ -234,14 +234,14 @@ func assignKinds(setup *Setup) []int {
 
 	// Ước tính mức tiêu hao xăng mỗi ngày của 1 Patrol:
 	// - Trên map nhỏ (<=8, <=12), khoảng cách giữa các bãi ngắn, bước thực tế rất ít
-	dailyFuelPerPatrol := float64(maxBudget) * 0.8
+	dailyFuelPerPatrol := float64(maxBudget) * 0.6
 	if maxDim <= 8 {
 		if dailyFuelPerPatrol > 13.0 {
 			dailyFuelPerPatrol = 13.0
 		}
 	} else if maxDim <= 12 {
-		if dailyFuelPerPatrol > 16.0 {
-			dailyFuelPerPatrol = 16.0
+		if dailyFuelPerPatrol > 25.0 {
+			dailyFuelPerPatrol = 25.0
 		}
 	}
 	totalFuelNeeded := dailyFuelPerPatrol * float64(days)
@@ -284,9 +284,9 @@ func assignKinds(setup *Setup) []int {
 		}
 	}
 
-	// TH3: Map siêu nhỏ (8x8) và ít xe (<= 4 xe):
-	// Nếu bình xăng đủ dùng cả trận (FuelLimits >= days * maxBudget * 0.8), dùng 100% Patrols!
-	if maxDim <= 8 && n <= 4 && !needsRefuel {
+	// TH3: Map nhỏ (<= 12x12) và ít xe (<= 4 xe):
+	// Nếu bình xăng đủ dùng cả trận (!needsRefuel), dùng 100% Patrols!
+	if maxDim <= 12 && n <= 4 && !needsRefuel {
 		numRefuelers = 0
 	}
 

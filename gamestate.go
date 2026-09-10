@@ -3,6 +3,8 @@
 // Vị trí thật của agent lấy từ DayState ngày 0, KHÔNG từ Setup.Agents.
 package main
 
+import "log"
+
 // SpotState theo dõi kho udon nội bộ cho 1 điểm thu (spot).
 // Server KHÔNG trả kho còn lại — bot phải tự quản lý.
 type SpotState struct {
@@ -59,11 +61,31 @@ func (gs *GameState) SetKinds(kinds []int) {
 	copy(gs.AgentKinds[:n], kinds)
 }
 
+// syncKindsWithServer đồng bộ lại AgentKinds theo phản hồi thực tế từ server.
+// Nếu server cấp Fuel > 0, xe chắc chắn là Patrol (Refueler luôn fuel = 0 / null).
+func (gs *GameState) syncKindsWithServer(st *DayState) {
+	for i := range gs.AgentKinds {
+		if i >= len(st.Agents) {
+			break
+		}
+		a := &st.Agents[i]
+		if a.Fuel != nil && *a.Fuel > 0 {
+			if gs.AgentKinds[i] == 1 {
+				log.Printf("[SYNC] ⚠️ Server xác định xe %d có fuel=%d > 0 -> Đồng bộ AgentKinds[%d] = 0 (Patrol)", i, *a.Fuel, i)
+				gs.AgentKinds[i] = 0
+			}
+		} else if a.Kind == 1 {
+			gs.AgentKinds[i] = 1
+		}
+	}
+}
+
 // InitDay0 khởi tạo vị trí và fuel thật của agent từ DayState ngày 0.
 // ⚠️  Vị trí xuất phát THẬT lấy từ DayState.Agents[i].Pos —
 //
 //	Setup.Agents chỉ là []int số lượng, KHÔNG có vị trí.
 func (gs *GameState) InitDay0(st *DayState) {
+	gs.syncKindsWithServer(st)
 	for i := range gs.AgentPos {
 		if i >= len(st.Agents) {
 			break
@@ -83,6 +105,7 @@ func (gs *GameState) InitDay0(st *DayState) {
 //   - Reset kho udon về đầy cho mỗi spot (độc lập theo đội)
 //   - Cập nhật bảng traffic mới từ server
 func (gs *GameState) NewDay(st *DayState) {
+	gs.syncKindsWithServer(st)
 	for i := range gs.AgentPos {
 		if i >= len(st.Agents) {
 			break

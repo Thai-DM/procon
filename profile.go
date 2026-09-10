@@ -30,37 +30,37 @@ func GetMapProfile(gs *GameState) *MapProfile {
 		// Đạt 100% trần lý thuyết ở iter 1-4, dừng sớm ở iter 20 (chỉ mất 8ms - 25ms!)
 		return &MapProfile{
 			Name:                   "P1: Micro (8x8)",
-			DayTimeout:             280 * time.Millisecond,
+			DayTimeout:             300 * time.Millisecond,
 			DpThreshold:            16,
 			StepFactor:             0.10,
 			NewBrandBonus:          10.0,
 			LowFuelRefuelThreshold: 35,
 			MaxGRASPIterations:     2000,
-			MaxNoImprove:           60,
+			MaxNoImprove:           80,
 		}
 	} else if maxDim <= 12 {
 		// P2: Medium (12x12, 10x10, 9x9)
 		return &MapProfile{
 			Name:                   "P2: Medium (12x12)",
-			DayTimeout:             400 * time.Millisecond,
+			DayTimeout:             650 * time.Millisecond,
 			DpThreshold:            18,
 			StepFactor:             0.07,
 			NewBrandBonus:          12.0,
 			LowFuelRefuelThreshold: 52,
-			MaxGRASPIterations:     3000,
-			MaxNoImprove:           80,
+			MaxGRASPIterations:     5000,
+			MaxNoImprove:           200,
 		}
 	} else if maxDim <= 16 {
 		// P3: Large (16x16)
 		return &MapProfile{
 			Name:                   "P3: Large (16x16)",
-			DayTimeout:             550 * time.Millisecond,
+			DayTimeout:             750 * time.Millisecond,
 			DpThreshold:            17,
 			StepFactor:             0.05,
 			NewBrandBonus:          15.0,
 			LowFuelRefuelThreshold: 75,
-			MaxGRASPIterations:     5000,
-			MaxNoImprove:           150,
+			MaxGRASPIterations:     6000,
+			MaxNoImprove:           250,
 		}
 	} else if maxDim <= 24 {
 		// P4: Map 24x24
@@ -70,31 +70,31 @@ func GetMapProfile(gs *GameState) *MapProfile {
 		}
 		return &MapProfile{
 			Name:                   "P4: X-Large (24x24)",
-			DayTimeout:             720 * time.Millisecond,
+			DayTimeout:             850 * time.Millisecond,
 			DpThreshold:            16,
 			StepFactor:             0.01,
 			NewBrandBonus:          18.0,
 			LowFuelRefuelThreshold: threshold,
 			MaxGRASPIterations:     8000,
-			MaxNoImprove:           300,
+			MaxNoImprove:           400,
 		}
 	} else {
 		// P5: Huge (32x32+)
 		// Map 32x32 có 1024 ô, không thể ăn 100% bãi.
-		// CHẤT LƯỢNG LÊN HÀNG ĐẦU: Dành 750ms và MaxNoImprove=350 để GRASP tìm sâu nhất số Udon!
+		// CHẤT LƯỢNG LÊN HÀNG ĐẦU: Dành 950ms và MaxNoImprove=850 để GRASP tìm sâu nhất số Udon!
 		threshold := 90
 		if gs.DayStepsForDay(gs.CurrentDay) >= 80 {
 			threshold = 130
 		}
 		return &MapProfile{
 			Name:                   "P5: Huge (32x32+)",
-			DayTimeout:             700 * time.Millisecond,
+			DayTimeout:             950 * time.Millisecond,
 			DpThreshold:            16,
 			StepFactor:             0.005,
 			NewBrandBonus:          25.0,
 			LowFuelRefuelThreshold: threshold,
-			MaxGRASPIterations:     10000,
-			MaxNoImprove:           650,
+			MaxGRASPIterations:     12000,
+			MaxNoImprove:           850,
 		}
 	}
 }

@@ -1,0 +1,63 @@
+2026/09/10 11:40:26 [INIT] Logging match output to console and: logs\match_m-25776.log (all matches in logs\matches.log)
+2026/09/10 11:40:26 [INIT] Transport: WebSocket (server-push, low-latency)
+2026/09/10 11:40:26 [WS] Connecting to wss://procon.ptit.edu.vn/ws/v1/matches/m-25776?token=bot-1857604b6fa72b6f0c6f1965
+2026/09/10 11:40:26 [WS] Connected!
+2026/09/10 11:40:26 [INIT] Fetching setup...
+2026/09/10 11:40:26 [INIT] Map 8x8 | agents=4 | spots=8 (maxStocks/day=17) | days=4 | fuelLimit=60
+2026/09/10 11:40:26 [INIT] Assigning kinds: [0 0 0 0]
+2026/09/10 11:40:26 [INIT] Waiting for match to start...
+2026/09/10 11:40:26 [INIT] Match started!
+2026/09/10 11:40:26 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-25776","day":0,"valid":true,"reason":"","submission_id":"team-A-assign-1","response_ms":0}
+2026/09/10 11:40:26 [DAY 0] Agent positions: [48 63 19 46] | fuels: [60 60 60 60]
+2026/09/10 11:40:26 [DAY 0] DEBUG positions: [48 63 19 46] | fuels: [60 60 60 60]
+2026/09/10 11:40:26 [DAY 0] budget=30 steps | 8 road statuses
+2026/09/10 11:40:26 [DAY 0] [P1: Micro (8x8)] Dynamic timeout=280ms (budget=30 steps)...
+2026/09/10 11:40:26 [DAY 0] Cache built (12 sources).
+2026/09/10 11:40:26 [DAY 0] iter=1 NEW BEST: matchTypes=4 todayTypes=4 stocks=16 (eff=16) steps=111 endDist=0
+2026/09/10 11:40:26 [DAY 0] iter=6 NEW BEST: matchTypes=4 todayTypes=4 stocks=17 (eff=17) steps=110 endDist=0
+2026/09/10 11:40:26 [DAY 0] 🎯 THEORETICAL MAXIMUM REACHED (stocks=17/17, todayTypes=4/4, matchTypes=4/4) -> early exit at iter=25!
+2026/09/10 11:40:26 [DAY 0] Search completed in 25 iterations. Best: matchTypes=4, todayTypes=4, stocks=17/17, steps=110
+2026/09/10 11:40:26 [DAY 0] final plan submitted OK (14ms taken).
+2026/09/10 11:40:26 [DAY 0] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 11:40:26 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-25776","day":1,"valid":true,"reason":"","submission_id":"team-A-d1-2","response_ms":25}
+2026/09/10 11:40:31 [DAY 1] DEBUG positions: [15 8 40 3] | fuels: [34 42 43 36]
+2026/09/10 11:40:31 [DAY 1] budget=30 steps | 8 road statuses
+2026/09/10 11:40:31 [DAY 1] [P1: Micro (8x8)] Dynamic timeout=280ms (budget=30 steps)...
+2026/09/10 11:40:31 [DAY 1] Cache built (12 sources).
+2026/09/10 11:40:31 [DAY 1] 🎯 THEORETICAL MAXIMUM REACHED (stocks=17/17, todayTypes=4/4, matchTypes=0/0) -> early exit at iter=20!
+2026/09/10 11:40:31 [DAY 1] Search completed in 20 iterations. Best: matchTypes=0, todayTypes=4, stocks=17/17, steps=89
+2026/09/10 11:40:31 [DAY 1] final plan submitted OK (19ms taken).
+2026/09/10 11:40:31 [DAY 1] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 11:40:31 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-25776","day":2,"valid":true,"reason":"","submission_id":"team-A-d2-3","response_ms":49}
+2026/09/10 11:40:36 [DAY 2] DEBUG positions: [40 61 15 8] | fuels: [21 28 24 18]
+2026/09/10 11:40:36 [DAY 2] budget=30 steps | 8 road statuses
+2026/09/10 11:40:36 [DAY 2] [P1: Micro (8x8)] Dynamic timeout=280ms (budget=30 steps)...
+2026/09/10 11:40:36 [DAY 2] Cache built (12 sources).
+2026/09/10 11:40:36 [DAY 2] iter=1 NEW BEST: matchTypes=0 todayTypes=4 stocks=15 (eff=15) steps=76 endDist=0
+2026/09/10 11:40:36 [DAY 2] iter=2 NEW BEST: matchTypes=0 todayTypes=4 stocks=16 (eff=16) steps=93 endDist=0
+2026/09/10 11:40:36 [DAY 2] iter=6 NEW BEST: matchTypes=0 todayTypes=4 stocks=16 (eff=16) steps=81 endDist=0
+2026/09/10 11:40:36 [DAY 2] iter=31 NEW BEST: matchTypes=0 todayTypes=4 stocks=17 (eff=17) steps=103 endDist=0
+2026/09/10 11:40:36 [DAY 2] iter=33 NEW BEST: matchTypes=0 todayTypes=4 stocks=17 (eff=17) steps=97 endDist=0
+2026/09/10 11:40:36 [DAY 2] 🎯 THEORETICAL MAXIMUM REACHED (stocks=17/17, todayTypes=4/4, matchTypes=0/0) -> early exit at iter=50!
+2026/09/10 11:40:36 [DAY 2] Search completed in 50 iterations. Best: matchTypes=0, todayTypes=4, stocks=17/17, steps=97
+2026/09/10 11:40:36 [DAY 2] final plan submitted OK (30ms taken).
+2026/09/10 11:40:36 [DAY 2] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 11:40:36 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-25776","day":3,"valid":true,"reason":"","submission_id":"team-A-d3-4","response_ms":79}
+2026/09/10 11:40:41 [DAY 3] DEBUG positions: [15 3 8 43] | fuels: [9 13 8 1]
+2026/09/10 11:40:41 [WARNING] CRITICAL LOW FUEL ALERT: Day 3 Agent 0 has ONLY 9 fuel remaining!
+2026/09/10 11:40:41 [WARNING] CRITICAL LOW FUEL ALERT: Day 3 Agent 1 has ONLY 13 fuel remaining!
+2026/09/10 11:40:41 [WARNING] CRITICAL LOW FUEL ALERT: Day 3 Agent 2 has ONLY 8 fuel remaining!
+2026/09/10 11:40:41 [WARNING] CRITICAL LOW FUEL ALERT: Day 3 Agent 3 has ONLY 1 fuel remaining!
+2026/09/10 11:40:41 [DAY 3] budget=30 steps | 8 road statuses
+2026/09/10 11:40:41 [DAY 3] [P1: Micro (8x8)] Dynamic timeout=280ms (budget=30 steps)...
+2026/09/10 11:40:41 [DAY 3] Cache built (12 sources).
+2026/09/10 11:40:41 [DAY 3] iter=14 NEW BEST: matchTypes=0 todayTypes=4 stocks=12 (eff=12) steps=48 endDist=0
+2026/09/10 11:40:41 [DAY 3] ⏹️ Converged after 60 iters with no improvement (total 74 iters) -> early exit!
+2026/09/10 11:40:41 [DAY 3] Search completed in 74 iterations. Best: matchTypes=0, todayTypes=4, stocks=12/17, steps=48
+2026/09/10 11:40:41 [DAY 3] final plan submitted OK (22ms taken).
+2026/09/10 11:40:41 [DAY 3] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 11:40:41 [INFO] Match has reached the final day. Waiting for results...
+2026/09/10 11:40:41 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-25776","day":4,"valid":true,"reason":"","submission_id":"team-A-d4-5","response_ms":62}
+
+[RESULT] Match finished successfully!
+{"protocol_version":"v0.1-draft","type":"match_result","match_id":"m-25776","standings":[{"rank":1,"team_id":"team-A","udon_types":4,"daily_types_sum":16,"udon_total":63,"response_ms_total":215},{"rank":2,"team_id":"team-B","udon_types":4,"daily_types_sum":16,"udon_total":50,"response_ms_total":1170}]}

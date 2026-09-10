@@ -1,0 +1,72 @@
+2026/09/10 16:39:36 [INIT] Logging match output to console and: logs\match_m-0035.log (all matches in logs\matches.log)
+2026/09/10 16:39:36 [INIT] Transport: WebSocket (server-push, low-latency)
+2026/09/10 16:39:36 [WS] Connecting to wss://procon.toiyeuptit.com/ws/v1/matches/m-0035?token=bot-0be5503eaaa0a659a8a6c99d
+2026/09/10 16:39:37 [WS] Connected!
+2026/09/10 16:39:37 [INIT] Fetching setup...
+2026/09/10 16:39:37 [INIT] Map 12x12 | agents=4 | spots=8 (maxStocks/day=27) | days=6 | fuelLimit=120
+2026/09/10 16:39:37 [INIT] Assigning kinds: [0 0 0 1]
+2026/09/10 16:39:37 [INIT] Waiting for match to start...
+2026/09/10 16:39:37 [INIT] Match started!
+2026/09/10 16:39:37 [DAY 0] Agent positions: [0 20 60 88] | fuels: [120 120 120 120]
+2026/09/10 16:39:37 [DAY 0] DEBUG positions: [0 20 60 88] | fuels: [120 120 120 120]
+2026/09/10 16:39:37 [DAY 0] budget=48 steps | 22 road statuses
+2026/09/10 16:39:37 [DAY 0] [P2: Medium (12x12)] Dynamic timeout=400ms (budget=48 steps)...
+2026/09/10 16:39:37 [DAY 0] Cache built (12 sources).
+2026/09/10 16:39:37 [DAY 0] iter=1 NEW BEST: matchTypes=4 todayTypes=4 stocks=17 (eff=17) steps=142 endDist=0
+2026/09/10 16:39:37 [DAY 0] iter=2 NEW BEST: matchTypes=4 todayTypes=4 stocks=18 (eff=18) steps=152 endDist=0
+2026/09/10 16:39:37 [WS] Server sent ActionResult: {"protocol_version":"","type":"","match_id":"","day":0,"valid":false,"reason":"E_BAD_FORMAT: json: cannot unmarshal number into Go value of type []int","submission_id":"","response_ms":0}
+2026/09/10 16:39:37 [DAY 0] ⏹️ Converged after 120 iters with no improvement (total 122 iters) -> early exit!
+2026/09/10 16:39:37 [DAY 0] Search completed in 122 iterations. Best: matchTypes=4, todayTypes=4, stocks=18/27, steps=152
+2026/09/10 16:39:37 [DAY 0] final plan submitted OK (109ms taken).
+2026/09/10 16:39:37 [DAY 0] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 16:39:37 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-0035","day":1,"valid":true,"reason":"","submission_id":"team-D-d1-1001","response_ms":1428}
+2026/09/10 16:40:05 [DAY 1] DEBUG positions: [142 122 95 142] | fuels: [85 94 92 110]
+2026/09/10 16:40:05 [DAY 1] budget=48 steps | 22 road statuses
+2026/09/10 16:40:05 [DAY 1] [P2: Medium (12x12)] Dynamic timeout=400ms (budget=48 steps)...
+2026/09/10 16:40:05 [DAY 1] Cache built (12 sources).
+2026/09/10 16:40:05 [DAY 1] iter=14 NEW BEST: matchTypes=0 todayTypes=4 stocks=18 (eff=18) steps=146 endDist=0
+2026/09/10 16:40:05 [DAY 1] ⏹️ Converged after 80 iters with no improvement (total 94 iters) -> early exit!
+2026/09/10 16:40:05 [DAY 1] Search completed in 94 iterations. Best: matchTypes=0, todayTypes=4, stocks=18/27, steps=146
+2026/09/10 16:40:05 [DAY 1] final plan submitted OK (70ms taken).
+2026/09/10 16:40:05 [DAY 1] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 16:40:06 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-0035","day":2,"valid":true,"reason":"","submission_id":"team-D-d2-1002","response_ms":428}
+2026/09/10 16:40:35 [DAY 2] DEBUG positions: [72 142 12 72] | fuels: [54 65 59 88]
+2026/09/10 16:40:35 [DAY 2] budget=48 steps | 22 road statuses
+2026/09/10 16:40:35 [DAY 2] [P2: Medium (12x12)] Dynamic timeout=400ms (budget=48 steps)...
+2026/09/10 16:40:35 [DAY 2] Cache built (12 sources).
+2026/09/10 16:40:35 [DAY 2] ⏹️ Converged after 80 iters with no improvement (total 80 iters) -> early exit!
+2026/09/10 16:40:35 [DAY 2] Search completed in 80 iterations. Best: matchTypes=0, todayTypes=4, stocks=18/27, steps=144
+2026/09/10 16:40:35 [DAY 2] final plan submitted OK (77ms taken).
+2026/09/10 16:40:35 [DAY 2] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 16:40:35 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-0035","day":3,"valid":true,"reason":"","submission_id":"team-D-d3-1003","response_ms":164}
+2026/09/10 16:41:05 [DAY 3] DEBUG positions: [142 72 95 50] | fuels: [23 34 26 63]
+2026/09/10 16:41:05 [DAY 3] budget=48 steps | 22 road statuses
+2026/09/10 16:41:05 [DAY 3] [P2: Medium (12x12)] Dynamic timeout=400ms (budget=48 steps)...
+2026/09/10 16:41:05 [DAY 3] Cache built (12 sources).
+2026/09/10 16:41:06 [DAY 3] ⏹️ Converged after 80 iters with no improvement (total 80 iters) -> early exit!
+2026/09/10 16:41:06 [DAY 3] Search completed in 80 iterations. Best: matchTypes=0, todayTypes=4, stocks=17/27, steps=134
+2026/09/10 16:41:06 [DAY 3] final plan submitted OK (176ms taken).
+2026/09/10 16:41:06 [DAY 3] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 16:41:06 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-0035","day":4,"valid":false,"reason":"E_NO_FUEL (xe 0, bước 39): không đủ nhiên liệu để di chuyển (còn 0, cần 2)","submission_id":"team-D-d4-1004","response_ms":271}
+2026/09/10 16:41:35 [DAY 4] DEBUG positions: [142 72 95 50] | fuels: [23 34 26 63]
+2026/09/10 16:41:35 [DAY 4] budget=48 steps | 22 road statuses
+2026/09/10 16:41:35 [DAY 4] [P2: Medium (12x12)] Dynamic timeout=400ms (budget=48 steps)...
+2026/09/10 16:41:35 [DAY 4] Cache built (12 sources).
+2026/09/10 16:41:36 [DAY 4] ⏹️ Converged after 80 iters with no improvement (total 80 iters) -> early exit!
+2026/09/10 16:41:36 [DAY 4] Search completed in 80 iterations. Best: matchTypes=0, todayTypes=4, stocks=17/27, steps=136
+2026/09/10 16:41:36 [DAY 4] final plan submitted OK (163ms taken).
+2026/09/10 16:41:36 [DAY 4] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 16:41:36 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-0035","day":5,"valid":false,"reason":"E_NO_FUEL (xe 0, bước 39): không đủ nhiên liệu để di chuyển (còn 0, cần 2)","submission_id":"team-D-d5-1005","response_ms":264}
+2026/09/10 16:42:05 [DAY 5] DEBUG positions: [142 72 95 50] | fuels: [23 34 26 63]
+2026/09/10 16:42:05 [DAY 5] budget=48 steps | 22 road statuses
+2026/09/10 16:42:05 [DAY 5] [P2: Medium (12x12)] Dynamic timeout=400ms (budget=48 steps)...
+2026/09/10 16:42:05 [DAY 5] Cache built (12 sources).
+2026/09/10 16:42:05 [DAY 5] ⏹️ Converged after 80 iters with no improvement (total 80 iters) -> early exit!
+2026/09/10 16:42:05 [DAY 5] Search completed in 80 iterations. Best: matchTypes=0, todayTypes=4, stocks=17/27, steps=136
+2026/09/10 16:42:06 [DAY 5] final plan submitted OK (158ms taken).
+2026/09/10 16:42:06 [DAY 5] DEBUG brands all-time=4/8 | dayNewTypes(all-time-basis)=[4]
+2026/09/10 16:42:06 [INFO] Match has reached the final day. Waiting for results...
+2026/09/10 16:42:06 [WS] Server sent ActionResult: {"protocol_version":"v0.1-draft","type":"action_result","match_id":"m-0035","day":6,"valid":false,"reason":"E_NO_FUEL (xe 0, bước 39): không đủ nhiên liệu để di chuyển (còn 0, cần 2)","submission_id":"team-D-d6-1006","response_ms":256}
+
+[RESULT] Match finished successfully!
+{"protocol_version":"v0.1-draft","type":"match_result","match_id":"m-0035","standings":[{"rank":1,"team_id":"team-F","udon_types":4,"daily_types_sum":24,"udon_total":115,"response_ms_total":5706},{"rank":2,"team_id":"team-A","udon_types":4,"daily_types_sum":24,"udon_total":103,"response_ms_total":4820},{"rank":3,"team_id":"team-D","udon_types":4,"daily_types_sum":18,"udon_total":65,"response_ms_total":92020},{"rank":4,"team_id":"team-E","udon_types":4,"daily_types_sum":4,"udon_total":22,"response_ms_total":162355},{"rank":5,"team_id":"team-B","udon_types":0,"daily_types_sum":0,"udon_total":0,"response_ms_total":180000},{"rank":5,"team_id":"team-C","udon_types":0,"daily_types_sum":0,"udon_total":0,"response_ms_total":180000}]}

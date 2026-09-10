@@ -5,10 +5,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -144,9 +146,29 @@ func (wc *WsNetworkClient) GetSetup(ctx context.Context) (*Setup, error) {
 	}
 }
 
-// PostAssignment gửi loại agent qua WS.
+// PostAssignment gửi loại agent qua WS đồng thời gửi fallback qua HTTP REST
+// để tương thích hoàn toàn cả với WS-native server (PTIT) và REST-only server.
 func (wc *WsNetworkClient) PostAssignment(ctx context.Context, kinds []int) error {
-	return wc.send(kinds)
+	wsErr := wc.send(kinds)
+
+	// Gửi thêm HTTP POST /api/v1/matches/{id}/assignment fallback
+	b, err := json.Marshal(kinds)
+	if err == nil {
+		apiURL := fmt.Sprintf("%s/api/v1/matches/%s/assignment", wc.baseURL, wc.matchID)
+		req, errReq := http.NewRequestWithContext(ctx, http.MethodPost, apiURL, bytes.NewReader(b))
+		if errReq == nil {
+			req.Header.Set("Authorization", "Bearer "+wc.token)
+			req.Header.Set("Content-Type", "application/json")
+			httpClient := &http.Client{Timeout: 3 * time.Second}
+			resp, errDo := httpClient.Do(req)
+			if errDo == nil {
+				defer resp.Body.Close()
+				log.Printf("[INIT] HTTP fallback PostAssignment status: %d", resp.StatusCode)
+			}
+		}
+	}
+
+	return wsErr
 }
 
 // WaitStart chờ bắt đầu. Với WS, trận bắt đầu khi ta nhận được DayState ngày 0.

@@ -12,6 +12,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 )
 
@@ -27,7 +29,7 @@ func main() {
 	urlFlag := flag.String("url", "", "Base URL server")
 	matchFlag := flag.String("match", "", "Match ID")
 	tokenFlag := flag.String("token", "", "API Token")
-	logFlag := flag.String("log", "", "Path to match log file (default: match_<matchID>.log)")
+	logFlag := flag.String("log", "", "Path to match log file (default: logs/match_<matchID>.log)")
 	flag.Parse()
 
 	var base, matchID, token string
@@ -46,8 +48,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// --- Thiết lập ghi log đồng thời ra console và file text ---
-	logFileName := fmt.Sprintf("match_%s.log", matchID)
+	// --- Thiết lập thư mục và ghi log (dồn tất cả log vào thư mục logs/) ---
+	logsDir := "logs"
+	_ = os.MkdirAll(logsDir, 0755)
+
+	logFileName := filepath.Join(logsDir, fmt.Sprintf("match_%s.log", matchID))
 	if *logFlag != "" {
 		logFileName = *logFlag
 	}
@@ -62,13 +67,17 @@ func main() {
 		log.Printf("[WARN] Không thể tạo file log %s: %v", logFileName, err)
 	}
 
-	if f2, err := os.OpenFile("match.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644); err == nil {
+	// File tổng hợp tất cả các trận đấu: logs/matches.log
+	allMatchesPath := filepath.Join(logsDir, "matches.log")
+	if f2, err := os.OpenFile(allMatchesPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644); err == nil {
 		defer f2.Close()
+		f2.WriteString(fmt.Sprintf("\n%s\n=== MATCH: %s | TRANSPORT: %s ===\n%s\n",
+			strings.Repeat("=", 60), matchID, *transportFlag, strings.Repeat("=", 60)))
 		logFiles = append(logFiles, f2)
 		logWriters = append(logWriters, f2)
 	}
 	log.SetOutput(io.MultiWriter(logWriters...))
-	log.Printf("[INIT] Logging match output to console and file: %s (and match.log)", logFileName)
+	log.Printf("[INIT] Logging match output to console and: %s (all matches in %s)", logFileName, allMatchesPath)
 
 	// Graceful shutdown khi nhận SIGINT / SIGTERM
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

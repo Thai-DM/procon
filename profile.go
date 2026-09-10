@@ -17,8 +17,6 @@ type MapProfile struct {
 	MaxNoImprove           int           // Số lượt lặp không cải thiện trước khi dừng GRASP
 }
 
-var CustomDayTimeout time.Duration = 0
-
 // GetMapProfile trả về cấu hình tối ưu nhất dựa trên GameState.
 func GetMapProfile(gs *GameState) *MapProfile {
 	maxDim := gs.Width()
@@ -102,8 +100,5 @@ func GetMapProfile(gs *GameState) *MapProfile {
 		}
 	}
 
-	if CustomDayTimeout > 0 {
-		prof.DayTimeout = CustomDayTimeout
-	}
 	return prof
 }

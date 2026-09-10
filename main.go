@@ -15,7 +15,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"time"
 )
 
 // brandTracker theo dõi brand đã thu toàn trận (tích luỹ qua các ngày).
@@ -31,12 +30,7 @@ func main() {
 	matchFlag := flag.String("match", "", "Match ID")
 	tokenFlag := flag.String("token", "", "API Token")
 	logFlag := flag.String("log", "", "Path to match log file (default: logs/match_<matchID>.log)")
-	timeoutFlag := flag.Int("timeout", 0, "Custom thinking timeout in ms (default: auto per map profile)")
 	flag.Parse()
-
-	if *timeoutFlag > 0 {
-		CustomDayTimeout = time.Duration(*timeoutFlag) * time.Millisecond
-	}
 
 	var base, matchID, token string
 	positional := flag.Args()
@@ -84,9 +78,6 @@ func main() {
 	}
 	log.SetOutput(io.MultiWriter(logWriters...))
 	log.Printf("[INIT] Logging match output to console and: %s (all matches in %s)", logFileName, allMatchesPath)
-	if CustomDayTimeout > 0 {
-		log.Printf("[INIT] ⏱️ Custom thinking timeout override: %v", CustomDayTimeout)
-	}
 
 	// Graceful shutdown khi nhận SIGINT / SIGTERM
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

@@ -62,20 +62,17 @@ func (gs *GameState) SetKinds(kinds []int) {
 }
 
 // syncKindsWithServer đồng bộ lại AgentKinds theo phản hồi thực tế từ server.
-// Nếu server cấp Fuel > 0, xe chắc chắn là Patrol (Refueler luôn fuel = 0 / null).
 func (gs *GameState) syncKindsWithServer(st *DayState) {
 	for i := range gs.AgentKinds {
 		if i >= len(st.Agents) {
 			break
 		}
 		a := &st.Agents[i]
-		if a.Fuel != nil && *a.Fuel > 0 {
-			if gs.AgentKinds[i] == 1 {
-				log.Printf("[SYNC] ⚠️ Server xác định xe %d có fuel=%d > 0 -> Đồng bộ AgentKinds[%d] = 0 (Patrol)", i, *a.Fuel, i)
-				gs.AgentKinds[i] = 0
-			}
-		} else if a.Kind == 1 {
+		if a.Kind == 1 {
 			gs.AgentKinds[i] = 1
+		} else if a.Kind == 0 && gs.AgentKinds[i] == 1 {
+			log.Printf("[SYNC] ⚠️ Server xác nhận xe %d là Patrol (kind=0) -> Đồng bộ AgentKinds[%d] = 0", i, i)
+			gs.AgentKinds[i] = 0
 		}
 	}
 }

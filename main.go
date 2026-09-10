@@ -253,10 +253,10 @@ func assignKinds(setup *Setup) []int {
 	if setup.FuelLimits >= 100 {
 		if maxDim >= 24 {
 			// Map to 24x24 & 32x32+ (8 xe):
-			// - Trận dài (>= 6 ngày) HOẶC bình xăng nhỏ (< 150): 2 Refuelers + 6 Patrols để đảm bảo an toàn đường dài.
-			// - Trận ngắn (<= 5 ngày) VÀ bình xăng dồi dào (>= 150): 1 Refueler + 7 Patrols để tối đa hóa số xe thu hoạch Udon!
+			// - Trận rất dài (>= 9 ngày) HOẶC bình xăng hẹp (< 150): 2 Refuelers + 6 Patrols để đảm bảo an toàn đường dài.
+			// - Trận bình thường (<= 8 ngày) VÀ bình xăng dồi dào (>= 150): 1 Refueler + 7 Patrols để tối đa hóa số xe thu hoạch Udon!
 			//   Phase 5 Safety Guard đã chặn tuyệt đối E_NO_FUEL, 7 Patrols giúp áp đảo đối thủ về sản lượng.
-			if days >= 6 || setup.FuelLimits < 150 {
+			if days >= 9 || setup.FuelLimits < 150 {
 				if n >= 7 {
 					numRefuelers = 2
 				} else {

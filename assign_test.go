@@ -64,6 +64,82 @@ func TestAssignKinds(t *testing.T) {
 	if refCount3 != 1 {
 		t.Errorf("Expected 1 Refueler for 5-day 8x8 match (fuel 60), got %d", refCount3)
 	}
+
+	// TH4: Map 32x32, 8 agents, 6 days, fuel 200 -> 1 Refueler + 7 Patrols (m-27005 scenario)
+	s4 := &Setup{
+		Agents:     []int{0, 1, 2, 3, 4, 5, 6, 7},
+		DaySteps:   make([]int, 6),
+		FuelLimits: 200,
+	}
+	s4.Map.Width = 32
+	s4.Map.Height = 32
+	kinds4 := assignKinds(s4)
+	refCount4 := 0
+	for _, k := range kinds4 {
+		if k == 1 {
+			refCount4++
+		}
+	}
+	if refCount4 != 1 {
+		t.Errorf("Expected 1 Refueler for 6-day 32x32 match (fuel 200), got %d", refCount4)
+	}
+
+	// TH5: Map 32x32, 8 agents, 10 days, fuel 200 -> 2 Refuelers (very long match >= 9 days)
+	s5 := &Setup{
+		Agents:     []int{0, 1, 2, 3, 4, 5, 6, 7},
+		DaySteps:   make([]int, 10),
+		FuelLimits: 200,
+	}
+	s5.Map.Width = 32
+	s5.Map.Height = 32
+	kinds5 := assignKinds(s5)
+	refCount5 := 0
+	for _, k := range kinds5 {
+		if k == 1 {
+			refCount5++
+		}
+	}
+	if refCount5 != 2 {
+		t.Errorf("Expected 2 Refuelers for 10-day 32x32 match (fuel 200), got %d", refCount5)
+	}
+
+	// TH6: Map 32x32, 8 agents, 6 days, fuel 120 -> 2 Refuelers (fuel < 150)
+	s6 := &Setup{
+		Agents:     []int{0, 1, 2, 3, 4, 5, 6, 7},
+		DaySteps:   make([]int, 6),
+		FuelLimits: 120,
+	}
+	s6.Map.Width = 32
+	s6.Map.Height = 32
+	kinds6 := assignKinds(s6)
+	refCount6 := 0
+	for _, k := range kinds6 {
+		if k == 1 {
+			refCount6++
+		}
+	}
+	if refCount6 != 2 {
+		t.Errorf("Expected 2 Refuelers for 6-day 32x32 match (fuel 120), got %d", refCount6)
+	}
+
+	// TH7: Map 12x12, 6 agents, 10 days, fuel 100 -> 1 Refueler (m-26997 scenario)
+	s7 := &Setup{
+		Agents:     []int{0, 1, 2, 3, 4, 5},
+		DaySteps:   make([]int, 10),
+		FuelLimits: 100,
+	}
+	s7.Map.Width = 12
+	s7.Map.Height = 12
+	kinds7 := assignKinds(s7)
+	refCount7 := 0
+	for _, k := range kinds7 {
+		if k == 1 {
+			refCount7++
+		}
+	}
+	if refCount7 != 1 {
+		t.Errorf("Expected 1 Refueler for 10-day 12x12 match with 6 agents, got %d", refCount7)
+	}
 }
 
 func TestBuildPosRouteStartWait(t *testing.T) {

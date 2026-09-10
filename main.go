@@ -81,9 +81,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("[FATAL] GetSetup: %v", err)
 	}
-	log.Printf("[INIT] Map %dx%d | agents=%d | spots=%d | days=%d | fuelLimit=%d",
+	totalStocks := 0
+	for _, sp := range setup.Spots {
+		totalStocks += sp.Stocks
+	}
+	log.Printf("[INIT] Map %dx%d | agents=%d | spots=%d (maxStocks/day=%d) | days=%d | fuelLimit=%d",
 		setup.Map.Width, setup.Map.Height,
-		len(setup.Agents), len(setup.Spots),
+		len(setup.Agents), len(setup.Spots), totalStocks,
 		len(setup.DaySteps), setup.FuelLimits)
 
 	// 3. Khởi tạo GameState + BrandTracker
@@ -207,34 +211,19 @@ func assignKinds(setup *Setup) []int {
 
 	// TH1: Bình xăng lớn (FuelLimits >= 100)
 	if setup.FuelLimits >= 100 {
-		if maxDim >= 32 {
-			// Map khổng lồ 32x32+ (8 xe):
-			// - Bình xăng nhỏ (FuelLimits < 150): BẮT BUỘC dùng 2 Refuelers.
-			// - Bình xăng lớn >= 150, budget bước nhỏ (<= 6 ngày): 1 Refueler.
-			// - Bình xăng lớn >= 150, budget bước lớn (>= 7 ngày HOẶC cần refuel): 2 Refuelers.
-			if setup.FuelLimits < 150 || days >= 7 || (needsRefuel && n >= 7) {
+		if maxDim >= 24 {
+			// Map to 24x24 & 32x32+ (8 xe):
+			// - Trận dài (>= 6 ngày) HOẶC bình xăng nhỏ (< 150): 2 Refuelers + 6 Patrols để đảm bảo an toàn đường dài.
+			// - Trận ngắn (<= 5 ngày) VÀ bình xăng dồi dào (>= 150): 1 Refueler + 7 Patrols để tối đa hóa số xe thu hoạch Udon!
+			//   Phase 5 Safety Guard đã chặn tuyệt đối E_NO_FUEL, 7 Patrols giúp áp đảo đối thủ về sản lượng.
+			if days >= 6 || setup.FuelLimits < 150 {
 				if n >= 7 {
 					numRefuelers = 2
+				} else {
+					numRefuelers = 1
 				}
 			} else {
 				numRefuelers = 1
-			}
-		} else if maxDim >= 24 {
-			// Map to 24x24 (8 xe):
-			// - Trận >= 7 ngày: 2 Refuelers + 6 Patrols (Kiểm chứng m-1537 đạt 341 Udon)
-			// - Trận < 7 ngày, FuelLimits >= 150: 1 Refueler + 7 Patrols.
-			//   Dù budget lớn (100 bước), 1 Refueler đủ nếu ngưỡng tiếp xăng được nâng sớm.
-			//   Fix thực sự: LowFuelRefuelThreshold trong profile.go (70 → 140 khi budget >= 80).
-			if days >= 7 {
-				if n >= 7 {
-					numRefuelers = 2
-				}
-			} else {
-				if setup.FuelLimits >= 150 {
-					numRefuelers = 1
-				} else if n >= 7 {
-					numRefuelers = 2
-				}
 			}
 		} else {
 			// Map trung bình/nhỏ (16x16 trở xuống, e.g. 6 xe):

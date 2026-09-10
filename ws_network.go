@@ -159,7 +159,16 @@ func (wc *WsNetworkClient) WaitStart(ctx context.Context) error {
 func (wc *WsNetworkClient) GetState(ctx context.Context) (*DayState, error) {
 	select {
 	case st := <-wc.stateChan:
-		return st, nil
+		// Drain mọi state cũ bị dồn hàng đợi (nếu có lag mạng) để luôn xử lý ngày mới nhất của server
+		for {
+			select {
+			case newer := <-wc.stateChan:
+				log.Printf("[WS] ⏩ Bỏ qua state cũ Day %d, chuyển sang Day %d mới nhất", st.Day, newer.Day)
+				st = newer
+			default:
+				return st, nil
+			}
+		}
 	case err := <-wc.errChan:
 		return nil, err
 	case <-ctx.Done():

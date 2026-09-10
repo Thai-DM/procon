@@ -380,7 +380,16 @@ func greedyCoverage(
 
 // twoOpt cải thiện route bằng 2-opt, time-boxed bởi ctx.
 func twoOpt(ctx context.Context, route []int, cands []Candidate, agentPos int, dc *DayDistCaches, gs *GameState, todayBrands map[int]bool) []int {
-	if len(route) < 3 {
+	if len(route) < 2 {
+		return route
+	}
+	if len(route) == 2 {
+		cost01 := routeCostSteps(route, cands, agentPos, dc)
+		rev := []int{route[1], route[0]}
+		cost10 := routeCostSteps(rev, cands, agentPos, dc)
+		if cost10 < cost01 {
+			return rev
+		}
 		return route
 	}
 	best := make([]int, len(route))
@@ -450,126 +459,185 @@ func planRendezvousFrom(
 		return nil
 	}
 	currentFuel := gs.FuelOf(patrolIdx)
+	budget := gs.DayStepsForDay(gs.CurrentDay)
 
-	var meetPos int
-	var meetStep int
-
-	remFuel := currentFuel
-	foundLowFuelPoint := false
-
-	// Nếu Patrol đang rất ít xăng (<= 25), điểm hẹn AN TOÀN NHẤT là ngay tại vị trí hiện tại
-	if currentFuel <= 25 || len(plannedPatrolRoute) <= 1 {
+	// Nếu Patrol cạn xăng nguy kịch (<= 15) hoặc lộ trình rỗng, điểm hẹn duy nhất an toàn là tại chỗ
+	if currentFuel <= 15 || len(plannedPatrolRoute) <= 1 {
 		if currentFuel <= prof.LowFuelRefuelThreshold {
-			meetPos = gs.AgentPos[patrolIdx]
-			meetStep = 0
-			foundLowFuelPoint = true
-		} else {
-			return nil
-		}
-	} else {
-		meetPos = plannedPatrolRoute[0]
-		accumulatedSteps := 0
-		pos := plannedPatrolRoute[0]
-
-		for i := 1; i < len(plannedPatrolRoute); i++ {
-			nextPos := plannedPatrolRoute[i]
-			sc, fc, ok := TerrainCost(gs.Cell(pos), gs.TrafficStatus(pos))
+			meetPos := gs.AgentPos[patrolIdx]
+			meetStep := 0
+			p, ok := dc.Refueler.Get(refCurPos, meetPos)
 			if !ok {
-				break
-			}
-			accumulatedSteps += sc
-			remFuel -= fc
-			pos = nextPos
-
-			// Nếu tại ô này, fuel còn lại rơi xuống <= prof.LowFuelRefuelThreshold
-			if remFuel <= prof.LowFuelRefuelThreshold && remFuel >= 0 {
-				meetPos = nextPos
-				meetStep = accumulatedSteps
-				foundLowFuelPoint = true
-				break
-			}
-		}
-
-		if !foundLowFuelPoint {
-			if currentFuel <= prof.LowFuelRefuelThreshold {
-				// Nếu lộ trình quá dài khiến cạn xăng, chọn điểm xuất phát an toàn
-				if remFuel < 2 {
-					meetPos = plannedPatrolRoute[0]
-					meetStep = 0
-				} else {
-					meetPos = plannedPatrolRoute[len(plannedPatrolRoute)-1]
-					meetStep = accumulatedSteps
-				}
-			} else {
-				// Cả lộ trình xe vẫn đủ xăng (> threshold), không cần nạp gấp
 				return nil
 			}
-		}
-	}
-
-	p, ok := dc.Refueler.Get(refCurPos, meetPos)
-	if !ok {
-		if currentFuel <= prof.LowFuelRefuelThreshold {
+			isComplete := (p.Steps+1 <= refBudgetLeft)
+			patWait := 1
+			refWait := 1
+			refArrival := elapsedSteps + p.Steps
+			if isComplete {
+				patWait = refArrival + 4
+				refWait = 4
+			} else {
+				patWait = 0
+				refWait = 0
+			}
 			return &RendezvousPlan{
 				PatrolIdx:    patrolIdx,
 				MeetPos:      meetPos,
 				MeetStep:     meetStep,
-				RefSteps:     refBudgetLeft,
-				PatrolWait:   0,
-				RefuelerWait: 0,
-				IsComplete:   false,
-				RefuelStep:   refBudgetLeft,
+				RefSteps:     p.Steps,
+				PatrolWait:   patWait,
+				RefuelerWait: refWait,
+				IsComplete:   isComplete,
+				RefuelStep:   refArrival + refWait,
 			}
 		}
 		return nil
 	}
 
-	// Nếu không đủ ngân sách, Refueler vẫn sẽ đi nhưng không đến nơi hôm nay
-	isComplete := true
-	if p.Steps > refBudgetLeft {
-		isComplete = false
+	// Duyệt dọc lộ trình của Patrol để tìm các điểm hẹn khả thi
+	type candMeet struct {
+		pos        int
+		meetStep   int
+		remFuel    int
+		refSteps   int
+		refArrival int
+		patWait    int
+		refWait    int
+		cost       int
 	}
 
-	// Tính thời gian chờ của 2 xe tại điểm hẹn (Đảm bảo có ít nhất 1 bước trùng khớp tại ô hẹn)
-	patWait := 1
-	refWait := 1
-	refArrival := elapsedSteps + p.Steps
+	var feasibleMeets []candMeet
+	remFuel := currentFuel
+	accumulatedSteps := 0
+	pos := plannedPatrolRoute[0]
 
-	if isComplete {
-		if refArrival >= meetStep {
-			patWait = (refArrival - meetStep) + 1
-			refWait = 1
-		} else {
-			patWait = 1
-			refWait = (meetStep - refArrival) + 1
+	// Kiểm tra ô xuất phát trước
+	if currentFuel <= prof.LowFuelRefuelThreshold {
+		if p, ok := dc.Refueler.Get(refCurPos, pos); ok && p.Steps <= refBudgetLeft {
+			refArr := elapsedSteps + p.Steps
+			patW := refArr + 4
+			refW := 4
+			if p.Steps+refW <= refBudgetLeft && patW <= budget {
+				feasibleMeets = append(feasibleMeets, candMeet{
+					pos:        pos,
+					meetStep:   0,
+					remFuel:    currentFuel,
+					refSteps:   p.Steps,
+					refArrival: refArr,
+					patWait:    patW,
+					refWait:    refW,
+					cost:       patW*5 + p.Steps,
+				})
+			}
 		}
-		// Đảm bảo đủ ngân sách cho cả lúc chờ
-		if p.Steps+refWait > refBudgetLeft {
-			isComplete = false
+	}
+
+	for i := 1; i < len(plannedPatrolRoute); i++ {
+		nextPos := plannedPatrolRoute[i]
+		sc, fc, ok := TerrainCost(gs.Cell(pos), gs.TrafficStatus(pos))
+		if !ok {
+			break
+		}
+		accumulatedSteps += sc
+		remFuel -= fc
+		pos = nextPos
+
+		if remFuel < 0 || accumulatedSteps > budget {
+			break // Patrol không đủ xăng hoặc bước để đi tới ô này
+		}
+
+		// Chỉ xem xét tiếp xăng khi lượng xăng tại ô này <= LowFuelRefuelThreshold
+		// hoặc khi xăng đầu ngày đã thấp (currentFuel <= LowFuelRefuelThreshold)
+		if remFuel <= prof.LowFuelRefuelThreshold || currentFuel <= prof.LowFuelRefuelThreshold {
+			p, ok := dc.Refueler.Get(refCurPos, pos)
+			if !ok || p.Steps > refBudgetLeft {
+				continue
+			}
+
+			refArrival := elapsedSteps + p.Steps
+			var patWait, refWait int
+			if refArrival >= accumulatedSteps {
+				patWait = (refArrival - accumulatedSteps) + 4
+				refWait = 4
+			} else {
+				patWait = 4
+				refWait = (accumulatedSteps - refArrival) + 4
+			}
+
+			// Đảm bảo đủ ngân sách cho cả Refueler và Patrol tại điểm hẹn
+			if p.Steps+refWait <= refBudgetLeft && accumulatedSteps+patWait <= budget {
+				// Cost ưu tiên:
+				// 1. patWait nhỏ nhất (Patrol không phải đứng chờ lâu, có thể chạy tiếp)
+				// 2. Refueler tốn ít bước
+				// 3. Thưởng nếu đón nạp đúng lúc Patrol chuẩn bị cạn xăng
+				cost := patWait*5 + p.Steps
+				if remFuel <= 40 {
+					cost -= 15
+				}
+				feasibleMeets = append(feasibleMeets, candMeet{
+					pos:        pos,
+					meetStep:   accumulatedSteps,
+					remFuel:    remFuel,
+					refSteps:   p.Steps,
+					refArrival: refArrival,
+					patWait:    patWait,
+					refWait:    refWait,
+					cost:       cost,
+				})
+			}
 		}
 	}
 
-	if !isComplete {
-		// Chưa tới nơi nên không ai chờ ai hôm nay
-		patWait = 0
-		refWait = 0
+	if len(feasibleMeets) > 0 {
+		// Chọn điểm hẹn có cost tối ưu nhất
+		best := feasibleMeets[0]
+		for _, cm := range feasibleMeets[1:] {
+			if cm.cost < best.cost {
+				best = cm
+			}
+		}
+
+		refuelStep := best.refArrival + best.refWait
+		if best.meetStep+best.patWait > refuelStep {
+			refuelStep = best.meetStep + best.patWait
+		}
+
+		return &RendezvousPlan{
+			PatrolIdx:    patrolIdx,
+			MeetPos:      best.pos,
+			MeetStep:     best.meetStep,
+			RefSteps:     best.refSteps,
+			PatrolWait:   best.patWait,
+			RefuelerWait: best.refWait,
+			IsComplete:   true,
+			RefuelStep:   refuelStep,
+		}
 	}
 
-	refuelStep := refArrival + refWait
-	if meetStep+patWait > refuelStep {
-		refuelStep = meetStep + patWait
+	// Fallback: Nếu không tìm được điểm hẹn hoàn chỉnh trong ngày,
+	// nhưng xe Patrol thực sự cần cứu (currentFuel <= LowFuelRefuelThreshold),
+	// Refueler vẫn di chuyển tối đa về phía điểm cuối của Patrol để áp sát cứu cho ngày mai!
+	if currentFuel <= prof.LowFuelRefuelThreshold {
+		endPos := plannedPatrolRoute[len(plannedPatrolRoute)-1]
+		p, ok := dc.Refueler.Get(refCurPos, endPos)
+		refSteps := refBudgetLeft
+		if ok && p.Steps < refSteps {
+			refSteps = p.Steps
+		}
+		return &RendezvousPlan{
+			PatrolIdx:    patrolIdx,
+			MeetPos:      endPos,
+			MeetStep:     accumulatedSteps,
+			RefSteps:     refSteps,
+			PatrolWait:   0,
+			RefuelerWait: 0,
+			IsComplete:   false,
+			RefuelStep:   refBudgetLeft,
+		}
 	}
 
-	return &RendezvousPlan{
-		PatrolIdx:    patrolIdx,
-		MeetPos:      meetPos,
-		MeetStep:     meetStep,
-		RefSteps:     p.Steps,
-		PatrolWait:   patWait,
-		RefuelerWait: refWait,
-		IsComplete:   isComplete,
-		RefuelStep:   refuelStep,
-	}
+	return nil
 }
 
 // PlanRendezvous — wrapper tương thích ngược.
@@ -676,12 +744,12 @@ func AssignDay(
 		}
 
 		// Nếu vẫn còn refueler trống chưa có mục tiêu, chọn tiếp các patrol có fuel thấp nhất
-		// (miễn là fuel chưa đầy: p.fuel < gs.FuelLimit()) để tận dụng tối đa tất cả Refuelers
+		// (miễn là fuel chưa đầy: p.fuel < gs.FuelLimit() hoặc budget >= 60 trên map lớn để tận dụng Refuelers ngay ngày 0)
 		for _, p := range allPatrols {
 			if len(canRefuelToday) >= len(refuelIdxs) {
 				break
 			}
-			if !canRefuelToday[p.idx] && p.fuel < gs.FuelLimit() {
+			if !canRefuelToday[p.idx] && (p.fuel < gs.FuelLimit() || budget >= 60) {
 				canRefuelToday[p.idx] = true
 			}
 		}
@@ -694,12 +762,30 @@ func AssignDay(
 		ok          bool
 	}
 	spotAssignedCount := make(map[int]int)
+	maxCapPerSpot := 1
+	if len(gs.Spots) < 8 {
+		maxCapPerSpot = 3
+	} else if budget >= 80 && len(patrolIdxs) >= 4 {
+		maxCapPerSpot = 2
+	}
 	isSpotFullyAssigned := func(si int) bool {
 		sp := gs.Spots[si]
 		if sp.DayStocks <= 0 {
 			return true
 		}
-		return spotAssignedCount[si] >= sp.DayStocks
+		capVal := sp.DayStocks
+		localCap := maxCapPerSpot
+		if budget >= 80 && len(patrolIdxs) >= 5 {
+			if sp.DayStocks >= 6 {
+				localCap = 4
+			} else if sp.DayStocks >= 4 {
+				localCap = 3
+			}
+		}
+		if capVal > localCap {
+			capVal = localCap
+		}
+		return spotAssignedCount[si] >= capVal
 	}
 
 	pathCache := make(map[int]map[int]pathEntry)
@@ -805,10 +891,13 @@ func AssignDay(
 					val -= float64(e.steps-minS) * 0.01
 				}
 
-				if isNewInMatch {
+				if isNewInMatch && spotAssignedCount[si] == 0 {
 					val += prof.NewBrandBonus
-				} else if isNewToday {
+				} else if isNewToday && spotAssignedCount[si] == 0 {
 					val += 5.0
+				}
+				if spotAssignedCount[si] > 0 {
+					val -= 4.0 * float64(spotAssignedCount[si])
 				}
 
 				choices = append(choices, candChoice{
@@ -826,6 +915,22 @@ func AssignDay(
 		}
 
 		if len(choices) == 0 {
+			if maxCapPerSpot < len(patrolIdxs) {
+				hasRemBudget := false
+				for _, a := range patrolIdxs {
+					if remBudget[a] >= 10 {
+						hasRemBudget = true
+						break
+					}
+				}
+				if hasRemBudget {
+					maxCapPerSpot++
+					for _, a := range patrolIdxs {
+						invalidatePathCache(a)
+					}
+					continue
+				}
+			}
 			break
 		}
 
@@ -901,8 +1006,8 @@ func AssignDay(
 		if bestSteps == 0 {
 			actualStepCost = 1
 		}
-		remBudget[bestAgent] -= (actualStepCost * 50) / 100
-		remFuel[bestAgent] -= (bestFuel * 50) / 100
+		remBudget[bestAgent] -= (actualStepCost * 55) / 100
+		remFuel[bestAgent] -= (bestFuel * 55) / 100
 		if !localBrands[gs.Spots[bestSpot].Brand] {
 			localBrands[gs.Spots[bestSpot].Brand] = true
 		}
@@ -917,7 +1022,10 @@ func AssignDay(
 	for k, v := range collectedBrands {
 		localCollectedBrands[k] = v
 	}
-	depletedSpots := make(map[int]bool) // Khởi tạo depletedSpots cho phần partial movement sau này
+	spotHarvestCount := make(map[int]int)
+	isSpotDepleted := func(si int) bool {
+		return spotHarvestCount[si] >= gs.Spots[si].DayStocks
+	}
 
 	// Lưu trữ trạng thái sau Phase 2 để dùng cho Phase 3
 	type patrolState struct {
@@ -932,6 +1040,7 @@ func AssignDay(
 		hasStartWait bool
 	}
 	patrolStates := make(map[int]*patrolState)
+	occupiedEndPos := make(map[int]bool)
 
 	for _, i := range patrolIdxs {
 		fuelRemain := gs.FuelOf(i)
@@ -993,10 +1102,36 @@ func AssignDay(
 
 		// Chuyển SpotIdx → chuỗi pos đầy đủ (gồm cả ô trung gian)
 		posRoute, hasStartWait := buildPosRoute(i, routeIdxs, cands, gs, dc)
-
 		usedSteps, usedFuel, reached := SimulateRoute(posRoute, budget_i, fuelRemain, false, gs)
 
-		// CHỈ đánh dấu depleted cho các spot THỰC SỰ đi tới
+		endPos := posRoute[len(posRoute)-1]
+		if reached+1 < len(posRoute) {
+			endPos = posRoute[reached]
+		}
+		if occupiedEndPos[endPos] && len(routeIdxs) >= 2 {
+			for tryIdx := len(routeIdxs) - 2; tryIdx >= 0; tryIdx-- {
+				altRouteIdxs := make([]int, len(routeIdxs))
+				copy(altRouteIdxs, routeIdxs)
+				altRouteIdxs[tryIdx], altRouteIdxs[len(altRouteIdxs)-1] = altRouteIdxs[len(altRouteIdxs)-1], altRouteIdxs[tryIdx]
+				altPosRoute, altStartWait := buildPosRoute(i, altRouteIdxs, cands, gs, dc)
+				altSteps, altFuel, altReached := SimulateRoute(altPosRoute, budget_i, fuelRemain, false, gs)
+				altEndPos := altPosRoute[len(altPosRoute)-1]
+				if altReached+1 < len(altPosRoute) {
+					altEndPos = altPosRoute[altReached]
+				}
+				if !occupiedEndPos[altEndPos] && altReached >= len(altPosRoute)-1 {
+					posRoute = altPosRoute
+					hasStartWait = altStartWait
+					usedSteps, usedFuel, reached = altSteps, altFuel, altReached
+					routeIdxs = altRouteIdxs
+					endPos = altEndPos
+					break
+				}
+			}
+		}
+		occupiedEndPos[endPos] = true
+
+		// Đánh dấu thu hoạch cho các spot THỰC SỰ đi tới
 		actuallyVisitedPos := posRoute
 		if reached+1 < len(posRoute) {
 			actuallyVisitedPos = posRoute[:reached+1]
@@ -1005,7 +1140,7 @@ func AssignDay(
 			if idx >= 0 && idx < len(cands) {
 				sp := cands[idx].SpotIdx
 				if posContains(actuallyVisitedPos, gs.Spots[sp].Pos) {
-					depletedSpots[sp] = true
+					spotHarvestCount[sp]++
 					localCollectedBrands[gs.Spots[sp].Brand] = true
 				}
 			}
@@ -1051,7 +1186,7 @@ func AssignDay(
 			fromPos := posRoute[len(posRoute)-1]
 
 			for spIdx, sp := range gs.Spots {
-				if visited[spIdx] || sp.DayStocks <= 0 || depletedSpots[spIdx] {
+				if visited[spIdx] || isSpotDepleted(spIdx) {
 					continue
 				}
 				p, ok := dc.Patrol.Get(fromPos, sp.Pos)
@@ -1064,6 +1199,9 @@ func AssignDay(
 					if !localCollectedBrands[sp.Brand] {
 						val += prof.NewBrandBonus + 10.0
 					}
+					if occupiedEndPos[sp.Pos] {
+						val -= 15.0
+					}
 					if val > bestVal {
 						bestVal = val
 						bestTarget = spIdx
@@ -1071,8 +1209,8 @@ func AssignDay(
 				}
 			}
 
-			if bestTarget < 0 {
-				// Không tới trọn vẹn được bãi nào có kho -> Dừng ngay tại đây để bảo tồn xăng!
+			if bestTarget < 0 || bestVal < 0 {
+				// Không tới trọn vẹn được bãi nào có kho hoặc bãi duy nhất đã có xe khác đỗ -> Dừng ngay tại đây để bảo tồn xăng và phân tán xe!
 				break
 			}
 
@@ -1094,8 +1232,10 @@ func AssignDay(
 			remSteps -= p2.Steps
 			remFuel -= p2.Fuel
 			visited[bestTarget] = true
-			depletedSpots[bestTarget] = true
+			spotHarvestCount[bestTarget]++
 			localCollectedBrands[gs.Spots[bestTarget].Brand] = true
+			delete(occupiedEndPos, fromPos)
+			occupiedEndPos[gs.Spots[bestTarget].Pos] = true
 		}
 
 		patrolRoutes = append(patrolRoutes, posRoute)
@@ -1207,8 +1347,15 @@ func AssignDay(
 			if alreadyRefueledPatrols[patIdx] {
 				continue
 			}
-			if patrolToRefuel[patIdx] == refIdx || gs.FuelOf(patIdx) <= prof.LowFuelRefuelThreshold {
+			if patrolToRefuel[patIdx] == refIdx {
 				myPatrolIdxs = append(myPatrolIdxs, patIdx)
+			}
+		}
+		if len(myPatrolIdxs) == 0 {
+			for _, patIdx := range patrolIdxs {
+				if !alreadyRefueledPatrols[patIdx] {
+					myPatrolIdxs = append(myPatrolIdxs, patIdx)
+				}
 			}
 		}
 
@@ -1332,7 +1479,7 @@ func AssignDay(
 					pos = nb
 				}
 				refCurPos = pos
-			} else if (!ok2 || len(p2.Dirs) == 0) && refBudget > 0 {
+			} else if (!ok2 || len(p2.Dirs) == 0) && refBudget > 0 && refCurPos != rv2.MeetPos {
 				pos := refCurPos
 				tRow, tCol := rv2.MeetPos/W, rv2.MeetPos%W
 				for refBudget > 0 {
@@ -1392,6 +1539,7 @@ func AssignDay(
 			}
 		}
 
+		hasShadowTarget := false
 		if refBudget > 0 && len(myPatrolIdxs) > 0 {
 			bestScore := 1 << 30
 			targetPos := -1
@@ -1428,6 +1576,7 @@ func AssignDay(
 				}
 			}
 			if targetPos >= 0 {
+				hasShadowTarget = true
 				p2, ok2 := dc.Refueler.Get(refCurPos, targetPos)
 				if ok2 && len(p2.Dirs) > 0 {
 					pos := refCurPos
@@ -1447,14 +1596,15 @@ func AssignDay(
 						refBudget -= sc
 						pos = nb
 					}
+					refCurPos = pos
 				}
 			}
 		}
 
 		// --- PROACTIVE POSITIONING CHO REFUELER ---
-		// FIX #4: Nếu Refueler còn dư bước, di chuyển về trọng tâm trọng số của các spot còn tồn kho (DayStocks > 0)
-		// hoặc bám theo xe Patrol cạn xăng trên map lớn.
-		if refBudget > 0 {
+		// FIX #4: Chỉ khi KHÔNG có Patrol nào để bám theo (hasShadowTarget == false)
+		// mới di chuyển về trọng tâm các spot còn hàng.
+		if refBudget > 0 && !hasShadowTarget {
 			lowFuelPatrolPos := -1
 			minPatrolFuel := 1000
 			for _, patIdx := range patrolIdxs {
@@ -1589,8 +1739,10 @@ func AssignDay(
 				// Lộ trình tiếp theo đã có sẵn, giữ nguyên để hoàn thành các bãi được gán!
 			} else if remBudget > 0 {
 				depletedBeforeMeet := make(map[int]bool)
-				for sp := range depletedSpots {
-					depletedBeforeMeet[sp] = true
+				for si := range gs.Spots {
+					if isSpotDepleted(si) {
+						depletedBeforeMeet[si] = true
+					}
 				}
 				if meetIdx >= 0 {
 					for _, pos := range patPlan.Route[:meetIdx+1] {
@@ -1613,7 +1765,7 @@ func AssignDay(
 				for _, idx := range routeIdxs2 {
 					if idx >= 0 && idx < len(cands2) {
 						sp := cands2[idx].SpotIdx
-						depletedSpots[sp] = true
+						spotHarvestCount[sp]++
 						localCollectedBrands[gs.Spots[sp].Brand] = true
 					}
 				}
@@ -1710,6 +1862,85 @@ func AssignDay(
 				if reachedPost+1 < len(plan.Route) {
 					plans[j].Route = plan.Route[:reachedPost+1]
 				}
+			}
+		}
+	}
+
+	// Phase 6: Post-Day Dispersion & Collision Elimination
+	// Tránh để 2 xe Patrol đỗ cùng 1 ô qua đêm. Xe nào còn ngân sách bước & xăng
+	// sẽ tự động di chuyển tới 1 bãi Udon chưa có xe nào đỗ để xí chỗ ngủ sáng mai ăn free!
+	endPosCount := make(map[int]int)
+	for _, pl := range plans {
+		if gs.IsPatrol(pl.AgentIdx) && len(pl.Route) > 0 {
+			ep := pl.Route[len(pl.Route)-1]
+			endPosCount[ep]++
+		}
+	}
+
+	for j := range plans {
+		pl := &plans[j]
+		if !gs.IsPatrol(pl.AgentIdx) || len(pl.Route) == 0 {
+			continue
+		}
+		ep := pl.Route[len(pl.Route)-1]
+		if endPosCount[ep] <= 1 {
+			continue // Không bị trùng
+		}
+
+		// Tính bước và xăng còn lại của agent này
+		hasRefuel := false
+		for _, wp := range pl.WaitPoints {
+			if wp.IsRefuel {
+				hasRefuel = true
+				break
+			}
+		}
+		fuelInit := gs.FuelOf(pl.AgentIdx)
+		if hasRefuel {
+			fuelInit = gs.FuelLimit()
+		}
+		uSteps, uFuel, _ := SimulateRoute(pl.Route, budget, fuelInit, false, gs)
+		remSteps := budget - uSteps
+		remFuel := fuelInit - uFuel
+		minSafe := 10
+		if gs.CurrentDay >= len(gs.Setup.DaySteps)-1 {
+			minSafe = 1
+		}
+
+		if remSteps <= 0 || remFuel <= minSafe {
+			continue
+		}
+
+		// Tìm bãi Udon nào chưa có xe Patrol nào đỗ
+		bestSpotPos := -1
+		bestDist := 1 << 30
+		for _, sp := range gs.Spots {
+			if endPosCount[sp.Pos] == 0 {
+				p, ok := dc.Patrol.Get(ep, sp.Pos)
+				if ok && p.Steps <= remSteps && p.Fuel <= (remFuel-minSafe) {
+					if p.Steps < bestDist {
+						bestDist = p.Steps
+						bestSpotPos = sp.Pos
+					}
+				}
+			}
+		}
+
+		if bestSpotPos >= 0 {
+			p, ok := dc.Patrol.Get(ep, bestSpotPos)
+			if ok && len(p.Dirs) > 0 {
+				curr := ep
+				W, H := gs.Width(), gs.Height()
+				for _, d := range p.Dirs {
+					nb := neighbor(curr, d, W, H)
+					if nb < 0 {
+						break
+					}
+					pl.Route = append(pl.Route, nb)
+					curr = nb
+				}
+				endPosCount[ep]--
+				endPosCount[bestSpotPos]++
 			}
 		}
 	}
